@@ -1,8 +1,22 @@
-# Welcome to your CDK TypeScript project!
+# AWS docker-swarm infrastructure repository
+Repository with AWS cdk scripts for docker-swarm training infrastructure deployment.
 
-This is a blank project for TypeScript development with CDK.
+## Prerequisites
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+1. Node (`brew install npm`)
+1. AWS CDK (`npm install -g aws-cdk`)
+1. [Install AWS cli v2](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html)
+1. [Configure your aws cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration) with the right credentials for the dev environment (available in Lastpass with the name `CDK Credentials`)
+1. For more details / up to date installation guidance, see the [AWS official docs](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
+
+### Initial run, ensure your environment is working nicely
+
+First run:
+1. `npm install`
+
+Build and see what changes would be deployed:
+1. `npm run build` or `npm run watch`
+1. `cdk diff` (example of not-harmful cdk command to ensure you have the right access)
 
 ## Useful commands
 
