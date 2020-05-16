@@ -7,8 +7,8 @@
       "Owner": "vlsidlyarevich@gmail.com"
     },
     "aws_env_details": {
-      "default": {
-        "region": "eu-west-1",
+      "dev": {
+        "region": "eu-west-2",
         "account": "979334860277"
       }
     }
