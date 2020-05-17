@@ -58,14 +58,27 @@ export class VPCSetup extends cdk.Construct {
         });
         workerSecGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic());
 
-        const peer = new ec2.CfnVPCPeeringConnection(this,'lead-manager-worker-peer', {
+        const peer = new ec2.CfnVPCPeeringConnection(this, 'lead-manager-worker-peer', {
             vpcId: this.leadManagerVpc.vpcId,
             peerVpcId: this.workerVpc.vpcId
         })
-        //
-        // this.leadManagerVpc.selectSubnets({subnetGroupName: "lead-manager-vpc-subnet-1a"})
-        //     .subnets.forEach((value, index, array) => {
-        //         value.
-        // })
+
+        this.leadManagerVpc.selectSubnets({subnetGroupName: "lead-manager-vpc-subnet-1a"})
+            .subnets.forEach((subnet) => {
+            new ec2.CfnRoute(this, "lead-manager-to-worker-route", {
+                routeTableId: subnet.routeTable.routeTableId,
+                destinationCidrBlock: "10.1.0.0/16",
+                vpcPeeringConnectionId: peer.ref
+            })
+        })
+
+        this.workerVpc.selectSubnets({subnetGroupName: "worker-vpc-subnet-1a"})
+            .subnets.forEach((subnet) => {
+            new ec2.CfnRoute(this, "worker-to-lead-manager-route", {
+                routeTableId: subnet.routeTable.routeTableId,
+                destinationCidrBlock: "10.0.0.0/16",
+                vpcPeeringConnectionId: peer.ref
+            })
+        })
     }
 }
