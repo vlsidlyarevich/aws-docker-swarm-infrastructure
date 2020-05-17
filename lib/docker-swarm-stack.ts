@@ -38,23 +38,34 @@ export class VPCSetup extends cdk.Construct {
         leadManagerSecGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic());
 
 
-        // this.workerVpc = new ec2.Vpc(this, 'worker-vpc', {
-        //     cidr: "10.1.0.0/16",
-        //     enableDnsHostnames: false,
-        //     maxAzs: 1,
-        //     subnetConfiguration: [
-        //         {
-        //             cidrMask: 16,
-        //             name: "worker-vpc-subnet-1a",
-        //             subnetType: SubnetType.PUBLIC
-        //         }
-        //     ]
-        // })
+        this.workerVpc = new ec2.Vpc(this, 'worker-vpc', {
+            cidr: "10.1.0.0/16",
+            enableDnsHostnames: false,
+            maxAzs: 1,
+            subnetConfiguration: [
+                {
+                    cidrMask: 16,
+                    name: "worker-vpc-subnet-1a",
+                    subnetType: SubnetType.PUBLIC
+                }
+            ]
+        })
+
+        const workerSecGroup = new ec2.SecurityGroup(this, 'worker-security-group', {
+            securityGroupName: 'worker-security-group',
+            vpc: this.workerVpc,
+            description: 'Worker vpc security group'
+        });
+        workerSecGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic());
+
+        const peer = new ec2.CfnVPCPeeringConnection(this,'lead-manager-worker-peer', {
+            vpcId: this.leadManagerVpc.vpcId,
+            peerVpcId: this.workerVpc.vpcId
+        })
         //
-        // const workerSecGroup = new ec2.SecurityGroup(this, 'worker-security-group', {
-        //     securityGroupName: 'worker-security-group',
-        //     vpc: this.workerVpc,
-        //     description: 'Worker vpc security group'
-        // });
+        // this.leadManagerVpc.selectSubnets({subnetGroupName: "lead-manager-vpc-subnet-1a"})
+        //     .subnets.forEach((value, index, array) => {
+        //         value.
+        // })
     }
 }
