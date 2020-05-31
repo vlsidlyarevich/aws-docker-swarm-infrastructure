@@ -17,7 +17,7 @@ export class VPCSetup extends cdk.Construct {
     constructor(parent: cdk.Construct, id: string) {
         super(parent, id);
 
-        this.leadManagerVpc = new ec2.Vpc(this, 'lead-manager-vpc', {
+        this.leadManagerVpc = new ec2.Vpc(this, 'LeadManagerVpc', {
             cidr: "10.0.0.0/16",
             enableDnsHostnames: false,
             maxAzs: 1,
@@ -30,7 +30,7 @@ export class VPCSetup extends cdk.Construct {
             ]
         })
 
-        const leadManagerSecGroup = new ec2.SecurityGroup(this, 'lead-manager-security-group', {
+        const leadManagerSecGroup = new ec2.SecurityGroup(this, 'LeadManagerSecurityGroup', {
             securityGroupName: 'lead-manager-security-group',
             vpc: this.leadManagerVpc,
             description: 'Lead manager vpc security group'
@@ -38,7 +38,7 @@ export class VPCSetup extends cdk.Construct {
         leadManagerSecGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic());
 
 
-        this.workerVpc = new ec2.Vpc(this, 'worker-vpc', {
+        this.workerVpc = new ec2.Vpc(this, 'WorkerVpc', {
             cidr: "10.1.0.0/16",
             enableDnsHostnames: false,
             maxAzs: 1,
@@ -51,19 +51,19 @@ export class VPCSetup extends cdk.Construct {
             ]
         })
 
-        const workerSecGroup = new ec2.SecurityGroup(this, 'worker-security-group', {
+        const workerSecGroup = new ec2.SecurityGroup(this, 'WorkerSecurityGroup', {
             securityGroupName: 'worker-security-group',
             vpc: this.workerVpc,
             description: 'Worker vpc security group'
         });
         workerSecGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTraffic());
 
-        const peer = new ec2.CfnVPCPeeringConnection(this, 'lead-manager-worker-peer', {
+        const peer = new ec2.CfnVPCPeeringConnection(this, 'LeadManagerWorkerPeer', {
             vpcId: this.leadManagerVpc.vpcId,
             peerVpcId: this.workerVpc.vpcId
         })
 
-        this.leadManagerVpc.selectSubnets({subnetGroupName: "lead-manager-vpc-subnet-1a"})
+        this.leadManagerVpc.selectSubnets({subnetGroupName: "LeadManagerVpcSubnet1a"})
             .subnets.forEach((subnet) => {
             new ec2.CfnRoute(this, "lead-manager-to-worker-route", {
                 routeTableId: subnet.routeTable.routeTableId,
@@ -72,13 +72,25 @@ export class VPCSetup extends cdk.Construct {
             })
         })
 
-        this.workerVpc.selectSubnets({subnetGroupName: "worker-vpc-subnet-1a"})
+        this.workerVpc.selectSubnets({subnetGroupName: "WorkerVpcSubnet1a"})
             .subnets.forEach((subnet) => {
-            new ec2.CfnRoute(this, "worker-to-lead-manager-route", {
+            new ec2.CfnRoute(this, "WorkerToLeadManagerRoute", {
                 routeTableId: subnet.routeTable.routeTableId,
                 destinationCidrBlock: "10.0.0.0/16",
                 vpcPeeringConnectionId: peer.ref
             })
         })
+    }
+}
+
+export class EC2Setup extends cdk.Construct {
+
+    readonly leadManagerInstance: ec2.Instance
+    readonly workerInstance: ec2.Instance
+
+    constructor(parent: cdk.Construct, id: string) {
+        super(parent, id);
+
+        this.leadManagerInstance = new ec2.Instance(this, 'LeadManagerInstance', {})
     }
 }
